@@ -1,0 +1,9 @@
+{
+	"authors": [
+		"dyluck"
+	],
+	"copyright": "Copyright © 2020, dyluck",
+	"description": "A minimal D application.",
+	"license": "proprietary",
+	"name": "await"
+}
