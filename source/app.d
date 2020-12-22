@@ -11,8 +11,54 @@ import taskqueue;
 import taskvalue;
 import timer.timerqueue;
 import xunit.core;
+import synchronization.semaphore;
+import synchronization.mutex;
 
 void main()
+{
+	scope stateTracker = new StateTracker(new TimerQueue());
+
+	stateTracker.Forever(() {
+		writeln("...");
+		scope lock = new Semaphore(2);
+		// scope lock = new Mutex();
+
+		auto tx1 = Task.Run(() {
+			lock.Await();
+			Task.Delay(1.seconds).Await(); //
+			writeln("1");
+			lock.Release();
+		});
+
+		auto tx2 = Task.Run(() {
+			lock.Await();
+			Task.Delay(1.seconds).Await(); //
+			writeln("2");
+			lock.Release();
+		});
+
+		auto tx3 = Task.Run(() {
+			lock.Await();
+			Task.Delay(1.seconds).Await(); //
+			writeln("3");
+			lock.Release();
+		});
+
+		auto tx4 = Task.Run(() {
+			lock.Await();
+			Task.Delay(1.seconds).Await(); //
+			writeln("4");
+			lock.Release();
+		});		
+
+		tx1.Await();
+		tx2.Await();
+		tx3.Await();
+		tx4.Await();
+	});
+}
+
+void main2()
 {
 	scope stateTracker = new StateTracker(new TimerQueue());
 

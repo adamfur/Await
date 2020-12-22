@@ -32,6 +32,11 @@ public class Task : TaskContext, ITask
     private Exception _exception;
     protected ITaskQueue _queue;
 
+    public this()
+    {
+        _queue = new TaskQueue();
+    }
+
     public this(ITaskQueue queue)
     {
         _queue = queue;
