@@ -5,6 +5,7 @@ import job;
 import statetracker;
 import taskqueue;
 import taskvalue;
+import timer.timerqueue;
 
 public enum TaskStatus
 {
@@ -110,11 +111,6 @@ public class Task : TaskContext, ITask
         _queue.Dequeue(count);
     }
 
-    // public void Awake(ITask task)
-    // {
-    //     // task.Await();
-    // }
-
     public static Task Run(void delegate() func)
     {
         return Run(() {
@@ -159,6 +155,9 @@ public class Task : TaskContext, ITask
     public static Task Delay(Duration duration)
     {
         auto task = new Task(new TaskQueue());
+        auto timer = new TaskTimer(task, duration);
+
+        State.Enqueue(timer);
 
         return task;
     }

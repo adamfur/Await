@@ -4,25 +4,84 @@ import job;
 import std.datetime.systime;
 import task;
 import std.container.binaryheap;
+import core.sync.mutex;
+import core.sync.condition;
+import core.thread;
+import std.stdio;
+import statetracker;
 
 public interface ITimerQueue
 {
     public void Enqueue(ITimer timer);
     public void Execute();
+    public void Start();
 }
 
-public class TimerQueue : ITimerQueue
+public class TimerQueue : Thread, ITimerQueue
 {
     private BinaryHeap!(ITimer[]) _priorityQueue;
+    private Mutex _mutex;
+    private Condition _condition;
 
     public this()
     {
+        super(&Run);
         _priorityQueue = BinaryHeap!(ITimer[])([], 0);
+        _mutex = new Mutex();
+        _condition = new Condition(_mutex);
+    }
+
+    public void Start()
+    {
+        start();
+    }
+
+    private void Run()
+    {
+        while (true)
+        {
+            ITimer timer;
+
+            synchronized (_mutex)
+            {
+                while (_priorityQueue.empty())
+                {
+                    _condition.wait();
+                }
+
+                while (true)
+                {
+                    auto front = _priorityQueue.front(); // || !.IsExpired(Clock.currTime())
+                    auto now = Clock.currTime();
+                    auto delta = (front.Deadline() - now);
+                    auto duration = cast(int) delta.total!"msecs";
+
+                    if (duration <= 0)
+                    {
+                        break;
+                    }                    
+
+                    _condition.wait(duration.msecs);
+                }
+
+                timer = _priorityQueue.front();
+
+                _priorityQueue.popFront();
+            }
+
+            timer.Trigger();
+            // writeln("StateTracker.Instance().Poke();");
+            StateTracker.Instance().Poke();
+        }
     }
 
     public void Enqueue(ITimer timer)
     {
-        _priorityQueue.insert(timer);
+        synchronized (_mutex)
+        {
+            _priorityQueue.insert(timer);
+            _condition.notify();
+        }
     }
 
     public void Execute()

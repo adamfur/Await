@@ -8,6 +8,7 @@ import taskqueue;
 import statetracker;
 import job;
 import std.stdio;
+import timer.timerqueue;
 
 protected class TaskTests : TaskContext
 {
@@ -22,7 +23,7 @@ protected class TaskTests : TaskContext
         _queue = Substitute.For!ITaskQueue();
         _task = new Task(_queue);
         Executing = Substitute.For!IJob();
-        State = new StateTracker(); // Substitute.For!IStateTracker;
+        State = new StateTracker(new TimerQueue()); // Substitute.For!IStateTracker;
         _subTask1 = Substitute.For!IJob();
         _subTask2 = Substitute.For!IJob();
     }
