@@ -104,7 +104,7 @@ public class Task : TaskContext, ITask
 
     import std.stdio;
 
-    private void ReleaseAll()
+    protected void ReleaseAll()
     {
         const intMax = 2_147_483_647;
 

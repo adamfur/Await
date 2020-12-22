@@ -14,8 +14,29 @@ import xunit.core;
 import synchronization.semaphore;
 import synchronization.mutex;
 import synchronization.fastmutex;
+import synchronization.barrier;
 
 void main()
+{
+	scope stateTracker = new StateTracker(new TimerQueue());
+
+	stateTracker.Forever(() {
+		auto lock = new Barrier(4);
+		void delegate() func = () {
+			writeln("hello (1)");
+			lock.Await();
+			writeln("hello (2)");
+		};
+
+		Task.Run(func);
+		Task.Run(func);
+		Task.Run(func);
+		Task.Run(func);
+		Task.Run(func);
+	});
+}
+
+void main3()
 {
 	scope stateTracker = new StateTracker(new TimerQueue());
 
@@ -24,15 +45,12 @@ void main()
 		// scope lock = new Semaphore(2);
 		// scope lock = new Mutex();
 		scope lock = new FastMutex();
+		// scope lock = new Barrier(2);
 
 		auto tx1 = Task.Run(() {
 			lock.Await();
-			lock.Await();
-			lock.Await();
 			Task.Delay(1.seconds).Await(); //
 			writeln("1");
-			lock.Release();
-			lock.Release();
 			lock.Release();
 		});
 
@@ -44,18 +62,18 @@ void main()
 		});
 
 		auto tx3 = Task.Run(() {
-			lock.Await();
 			Task.Delay(1.seconds).Await(); //
+			lock.Await();
 			writeln("3");
 			lock.Release();
 		});
 
 		auto tx4 = Task.Run(() {
-			lock.Await();
 			Task.Delay(1.seconds).Await(); //
+			lock.Await();
 			writeln("4");
 			lock.Release();
-		});		
+		});
 
 		tx1.Await();
 		tx2.Await();
