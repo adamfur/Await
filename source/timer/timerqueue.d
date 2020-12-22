@@ -54,7 +54,7 @@ public class TimerQueue : Thread, ITimerQueue
                     auto front = _priorityQueue.front(); // || !.IsExpired(Clock.currTime())
                     auto now = Clock.currTime();
                     auto delta = (front.Deadline() - now);
-                    auto duration = cast(int) delta.total!"msecs";
+                    auto duration = delta.total!"msecs";
 
                     if (duration <= 0)
                     {
