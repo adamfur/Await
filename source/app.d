@@ -32,7 +32,6 @@ void main()
 		Task.Run(func);
 		Task.Run(func);
 		Task.Run(func);
-		Task.Run(func);
 	});
 }
 
