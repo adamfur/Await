@@ -1,9 +1,10 @@
 module task;
 import core.thread : Fiber;
-import taskvalue;
-import taskqueue;
+import core.time;
 import job;
 import statetracker;
+import taskqueue;
+import taskvalue;
 
 public enum TaskStatus
 {
@@ -20,7 +21,7 @@ public static class TaskContext
 
 public interface ITask
 {
-    // public void Awake(ITask task);
+    public void Complete();
     public void Await();
 }
 
@@ -151,6 +152,13 @@ public class Task : TaskContext, ITask
         }, State);
 
         State.Schedule(job);
+
+        return task;
+    }
+
+    public static Task Delay(Duration duration)
+    {
+        auto task = new Task(new TaskQueue());
 
         return task;
     }
