@@ -15,10 +15,15 @@ public class Semaphore : Task
     {
         if (_count >= _max)
         {
-            super.Await();
+            Lock();
         }
 
         ++_count;
+    }
+
+    protected void Lock()
+    {
+        super.Await();
     }
 
     public void Release()
