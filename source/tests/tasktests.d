@@ -23,7 +23,8 @@ protected class TaskTests : TaskContext
         _queue = Substitute.For!ITaskQueue();
         _task = new Task(_queue);
         Executing = Substitute.For!IJob();
-        State = new StateTracker(new TimerQueue()); // Substitute.For!IStateTracker;
+        // State = new StateTracker(new TimerQueue());
+        State = new StateTracker(Substitute.For!ITimerQueue());
         _subTask1 = Substitute.For!IJob();
         _subTask2 = Substitute.For!IJob();
     }
