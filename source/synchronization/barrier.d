@@ -1,4 +1,5 @@
 module synchronization.barrier;
+import std.stdio;
 import task;
 
 public class Barrier : Task
@@ -13,7 +14,7 @@ public class Barrier : Task
 
     public override void Await()
     {
-        if (_count > _max)
+        if (_count >= _max)
         {
             return;
         }
