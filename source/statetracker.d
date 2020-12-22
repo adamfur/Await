@@ -7,6 +7,7 @@ import taskqueue;
 import timer.timerqueue;
 import core.sync.mutex;
 import core.sync.condition;
+import std.stdio;
 
 public interface IStateTracker
 {
@@ -78,6 +79,8 @@ public class StateTracker : IStateTracker
         Schedule(new Job(new TaskQueue(), func, this));
 
         Run(() => !_work.empty());
+        _timerQueue.Shutdown();
+        writeln("[DONE]");
     }
 
     public void Forever(void delegate() func)

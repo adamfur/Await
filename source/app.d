@@ -20,6 +20,20 @@ void main()
 {
 	scope stateTracker = new StateTracker(new TimerQueue());
 
+	stateTracker.Execute(() {
+		foreach (i; 0 .. 150_000)
+		{
+			Task.Run(() {}).Await();
+		}
+
+		writeln("...");
+	});
+}
+
+void main4()
+{
+	scope stateTracker = new StateTracker(new TimerQueue());
+
 	stateTracker.Forever(() {
 		auto lock = new Barrier(4);
 		void delegate() func = () {

@@ -15,14 +15,15 @@ public class Mutex : Semaphore
 
     public override void Await()
     {
+        if (_owner == Executing)
+        {
+            _count += 1;
+            return;
+        }
+
         while (true)
         {
-            if (_owner == Executing)
-            {
-                _count += 1;
-                return;
-            }
-            else if (_owner is null)
+            if (_owner is null)
             {
                 _owner = Executing;
                 _count = 1;

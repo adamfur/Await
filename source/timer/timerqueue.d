@@ -15,6 +15,7 @@ public interface ITimerQueue
     public void Enqueue(ITimer timer);
     public void Execute();
     public void Start();
+    public void Shutdown();
 }
 
 public class TimerQueue : Thread, ITimerQueue
@@ -22,6 +23,7 @@ public class TimerQueue : Thread, ITimerQueue
     private BinaryHeap!(ITimer[]) _priorityQueue;
     private Mutex _mutex;
     private Condition _condition;
+    private bool _running = true;
 
     public this()
     {
@@ -36,9 +38,18 @@ public class TimerQueue : Thread, ITimerQueue
         start();
     }
 
+    public void Shutdown()
+    {
+        synchronized (_mutex)
+        {
+            _running = false;
+            _condition.notify();
+        }
+    }
+
     private void Run()
     {
-        while (true)
+        while (_running)
         {
             ITimer timer;
 
@@ -46,11 +57,21 @@ public class TimerQueue : Thread, ITimerQueue
             {
                 while (_priorityQueue.empty())
                 {
-                    _condition.wait();
+                    _condition.wait(1_000.msecs);
+
+                    if (!_running)
+                    {
+                        return;
+                    }
                 }
 
                 while (true)
                 {
+                    if (!_running)
+                    {
+                        return;
+                    }
+
                     auto front = _priorityQueue.front();
                     auto now = Clock.currTime();
                     auto delta = (front.Deadline() - now);
@@ -59,7 +80,7 @@ public class TimerQueue : Thread, ITimerQueue
                     if (duration <= 0)
                     {
                         break;
-                    }                    
+                    }
 
                     _condition.wait(duration.msecs);
                 }
