@@ -14,24 +14,25 @@ public enum TaskStatus
 
 public static class TaskContext
 {
-    protected static ITask Executing;
+    protected static IJob Executing;
+    protected static IStateTracker State;
 }
 
 public interface ITask
 {
-    public void Awake(ITask task);
+    // public void Awake(ITask task);
+    public void Await();
 }
 
 public class Task : TaskContext, ITask
 {
     private TaskStatus _status = TaskStatus.Pending;
     private Exception _exception;
-    private ITaskQueue _queue;
+    protected ITaskQueue _queue;
 
     public this(ITaskQueue queue)
     {
         _queue = queue;
-        _queue.Bind(this);
     }
 
     public TaskStatus Status()
@@ -94,7 +95,9 @@ public class Task : TaskContext, ITask
         return task;
     }
 
-    public void ReleaseAll()
+    import std.stdio;
+
+    private void ReleaseAll()
     {
         const intMax = 2_147_483_647;
 
@@ -106,32 +109,49 @@ public class Task : TaskContext, ITask
         _queue.Dequeue(count);
     }
 
-    public void Awake(ITask task)
-    {
-    }
-
-    // Task opBinary(string op, T)(T y) const pure nothrow @safe
-    //         if ((op == "await") && is(T : Task))
+    // public void Awake(ITask task)
     // {
-    //     return null;
+    //     // task.Await();
     // }
 
     public static Task Run(void delegate() func)
     {
-        auto job = new Job(new TaskQueue(), func, StateTracker.Instance());
+        return Run(() {
+            func(); //
 
-        StateTracker.Instance().Schedule(job);
-        return job;
-        // return Run(() {
-        //     func(); //
-        //     return null;
-        // });
+            return 0;
+        });
     }
 
-    // public TaskValue!S Run(S)(S delegate() func)
-    // {
-    //     void delegate() = 
-    //     auto job = new Job(new TaskQueue(), );
-    //     return null;
-    // }
+    public static void Yield()
+    {
+        State.Schedule(Executing);
+        Fiber.yield();
+    }
+
+    public static TaskValue!S Run(S)(S delegate() func)
+    {
+        if (State is null)
+        {
+            throw new Exception("Not in async context");
+        }
+
+        auto task = new TaskValueSet!S(new TaskQueue());
+        auto job = new Job(new TaskQueue(), () {
+            try
+            {
+                auto result = func();
+
+                task.Set(result);
+            }
+            catch (Exception ex)
+            {
+                task.SetException(ex);
+            }
+        }, State);
+
+        State.Schedule(job);
+
+        return task;
+    }
 }

@@ -1,25 +1,19 @@
 module taskqueue;
+import job;
 import std.container : DList;
 import task;
 
 public interface ITaskQueue
 {
-    public void Enqueue(ITask task);
+    public void Enqueue(IJob task);
     public void Dequeue(int count);
-    public void Bind(ITask owner);
 }
 
 public class TaskQueue : ITaskQueue
 {
-    private DList!ITask _list;
-    private ITask _owner;
+    private DList!IJob _list;
 
-    public void Bind(ITask owner)
-    {
-        _owner = owner;
-    }
-
-    public void Enqueue(ITask task)
+    public void Enqueue(IJob task)
     {
         _list.insertBack(task);
     }
@@ -30,7 +24,7 @@ public class TaskQueue : ITaskQueue
         {
             auto item = _list.front();
 
-            item.Awake(_owner);
+            item.Awake();
             _list.removeFront();
         }
     }

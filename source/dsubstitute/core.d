@@ -5,6 +5,7 @@ import std.traits;
 import dsubstitute.dynamic;
 
 import task;
+import job;
 
 public class DSubstituteException : Exception
 {

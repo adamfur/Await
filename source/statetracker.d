@@ -6,19 +6,19 @@ import taskqueue;
 
 public interface IStateTracker
 {
-    public void Schedule(Job job);
-    public void Unschedule(Job job);
+    public void Schedule(IJob job);
+    public void Unschedule(IJob job);
+    public void Execute(void delegate() func);
 }
 
 public class StateTracker : IStateTracker
 {
-    private DList!Job _work;
+    private DList!IJob _work;
     private static __gshared IStateTracker _instance;
 
-    public this(void delegate() func)
+    public this()
     {
         _instance = this;
-        Schedule(new Job(new TaskQueue(), func, this));
     }
 
     public static IStateTracker Instance()
@@ -26,18 +26,20 @@ public class StateTracker : IStateTracker
         return _instance;
     }
 
-    public void Schedule(Job job)
+    public void Schedule(IJob job)
     {
         _work.insertBack(job);
     }
 
-    public void Unschedule(Job job)
+    public void Unschedule(IJob job)
     {
         _work.linearRemoveElement(job);
     }
 
-    public void Execute()
+    public void Execute(void delegate() func)
     {
+        Schedule(new Job(new TaskQueue(), func, this));
+
         while (!_work.empty())
         {
             auto job = _work.front();

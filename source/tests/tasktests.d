@@ -5,22 +5,26 @@ import dsubstitute.core;
 import core.thread : Fiber;
 import exception;
 import taskqueue;
+import statetracker;
+import job;
+import std.stdio;
 
 protected class TaskTests : TaskContext
 {
     public Mock!ITaskQueue _queue;
     private Fiber _fiber;
     private Task _task;
-    private Mock!ITask _subTask1;
-    private Mock!ITask _subTask2;
+    private Mock!IJob _subTask1;
+    private Mock!IJob _subTask2;
 
     public this()
     {
         _queue = Substitute.For!ITaskQueue();
         _task = new Task(_queue);
-        Executing = new Task(new TaskQueue());
-        _subTask1 = Substitute.For!ITask();
-        _subTask2 = Substitute.For!ITask();
+        Executing = Substitute.For!IJob();
+        State = new StateTracker(); // Substitute.For!IStateTracker;
+        _subTask1 = Substitute.For!IJob();
+        _subTask2 = Substitute.For!IJob();
     }
 
     public void Await_Await_Nothing()
@@ -29,7 +33,7 @@ protected class TaskTests : TaskContext
             _task.Await(); //
         });
 
-        _queue.Received().Enqueue(Arg.Is!ITask(Executing));
+        _queue.Received().Enqueue(Arg.Is!IJob(Executing));
     }
 
     public void Await_SetException_AwaitException()
@@ -37,7 +41,7 @@ protected class TaskTests : TaskContext
         _task.SetException(new TaskCancellationException(""));
 
         Assert.Throws!TaskCancellationException(() => _task.Await());
-        _queue.DidNotReceive().Enqueue(Arg.Is!ITask(Executing));
+        _queue.DidNotReceive().Enqueue(Arg.Is!IJob(Executing));
     }
 
     public void Await_SetExceptionOnCompleted_NoException()
@@ -46,7 +50,7 @@ protected class TaskTests : TaskContext
         _task.SetException(new TaskCancellationException(""));
 
         _task.Await();
-        _queue.DidNotReceive().Enqueue(Arg.Is!ITask(Executing));
+        _queue.DidNotReceive().Enqueue(Arg.Is!IJob(Executing));
     }
 
     public void Await_CompletedOnSetException_NoException()
@@ -55,7 +59,7 @@ protected class TaskTests : TaskContext
         _task.Complete();
 
         _task.Await();
-        _queue.DidNotReceive().Enqueue(Arg.Is!ITask(Executing));
+        _queue.DidNotReceive().Enqueue(Arg.Is!IJob(Executing));
     }
 
     public void Await_ResumeWithFault_Throws()
@@ -92,7 +96,7 @@ protected class TaskTests : TaskContext
         Assert.Equal(TaskStatus.Completed, task.Status());
     }
 
-    public void CompletedTask_Release_AwakenAll()
+    public void CompletedTask_Complete_AwakenAll()
     {
         auto task = new Task(new TaskQueue());
 
@@ -106,10 +110,52 @@ protected class TaskTests : TaskContext
             task.Await();
         });
 
-        task.ReleaseAll();
+        task.Complete();
 
-        _subTask1.Received().Awake(Arg.Is!ITask(task));
-        _subTask2.Received().Awake(Arg.Is!ITask(task));
+        _subTask1.Received().Awake();
+        _subTask2.Received().Awake();
+    }
+
+    public void CompletedTask_SetException_AwakenAll()
+    {
+        auto task = new Task(new TaskQueue());
+
+        Execute(() {
+            Executing = _subTask1; //
+            task.Await();
+        });
+
+        Execute(() {
+            Executing = _subTask2; //
+            task.Await();
+        });
+
+        task.SetException(new TaskCancellationException(""));
+
+        _subTask1.Received().Awake();
+        _subTask2.Received().Awake();
+    }
+
+    public void Run_Result_Expected()
+    {
+        int result = 0;
+
+        State.Execute(() {
+            result = Task.Run(() => 13).Result(); //
+        });
+
+        Assert.Equal(13, result);
+    }
+
+    public void Run_Throws_Propagate()
+    {
+        Assert.Throws!TaskCancellationException(() {
+            State.Execute(() {
+                Task.Run(() {
+                    throw new TaskCancellationException(""); //
+                }).Await();
+            });
+        });
     }
 
     private void Execute(void delegate() func)
@@ -119,10 +165,19 @@ protected class TaskTests : TaskContext
         _fiber.call();
     }
 
+    private void Tick()
+    {
+        Tick(() {});
+    }
+
     private void Tick(void delegate() func)
     {
         func();
-        _fiber.call();
+
+        if (_fiber.state != Fiber.State.TERM)
+        {
+            _fiber.call();
+        }
     }
 }
 

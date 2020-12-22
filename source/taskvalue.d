@@ -2,7 +2,7 @@ module taskvalue;
 import task;
 import taskqueue;
 
-public class TaskValue(S) : Task
+public abstract class TaskValue(S) : Task
 {
     protected S _value;
 
@@ -27,7 +27,7 @@ public class TaskValueSet(S) : TaskValue!S
 
     public void Set(S value)
     {
-        Complete();
         _value = value;
+        Complete();
     }
 }

@@ -6,6 +6,7 @@ import dsubstitute.core;
 import core.thread : Fiber;
 import exception;
 import taskqueue;
+import job;
 
 protected class TaskValueTests : TaskContext
 {
@@ -17,7 +18,7 @@ protected class TaskValueTests : TaskContext
     {
         _queue = Substitute.For!ITaskQueue();
         _task = new TaskValueSet!int(_queue);
-        Executing = new Task(new TaskQueue());
+        Executing = Substitute.For!IJob();
     }
 
     public void Result_ResultWithException_Throws()

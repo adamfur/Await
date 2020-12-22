@@ -19,6 +19,7 @@ public class TimerQueue : ITimerQueue
 
 public interface ITimer
 {
+    
 }
 
 public class Timer : ITimer

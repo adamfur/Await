@@ -1,11 +1,18 @@
 module job;
+import core.thread : Fiber;
+import statetracker;
+import std.stdio;
 import task;
 import taskqueue;
-import core.thread : Fiber;
 import taskvalue;
-import statetracker;
 
-public class Job : Task
+public interface IJob : ITask
+{
+    public void Execute();
+    public void Awake();
+}
+
+public class Job : Task, IJob
 {
     private Fiber _fiber;
     private IStateTracker _stateTracker;
@@ -17,13 +24,19 @@ public class Job : Task
         _fiber = new Fiber(func);
     }
 
-    public override void Awake(ITask task)
+    public void Awake()
     {
         _stateTracker.Schedule(this);
     }
 
     public void Execute()
     {
+        Executing = this;
+        State = _stateTracker;
         _fiber.call();
+
+        // if (_fiber.state == Fiber.State.TERM)
+        // {
+        // }
     }
 }
