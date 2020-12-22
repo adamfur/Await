@@ -13,6 +13,7 @@ import timer.timerqueue;
 import xunit.core;
 import synchronization.semaphore;
 import synchronization.mutex;
+import synchronization.fastmutex;
 
 void main()
 {
@@ -20,13 +21,18 @@ void main()
 
 	stateTracker.Forever(() {
 		writeln("...");
-		scope lock = new Semaphore(2);
+		// scope lock = new Semaphore(2);
 		// scope lock = new Mutex();
+		scope lock = new FastMutex();
 
 		auto tx1 = Task.Run(() {
 			lock.Await();
+			lock.Await();
+			lock.Await();
 			Task.Delay(1.seconds).Await(); //
 			writeln("1");
+			lock.Release();
+			lock.Release();
 			lock.Release();
 		});
 
