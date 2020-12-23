@@ -1,8 +1,10 @@
 module synchronization.barrier;
 import std.stdio;
 import task;
+import synchronization.lock;
+import synchronization.semaphore;
 
-public class Barrier : Task
+public class Barrier : AsyncLock
 {
     private int _max;
     private int _count = 0;
@@ -12,7 +14,7 @@ public class Barrier : Task
         _max = max;
     }
 
-    public override void Await()
+    public override void lock()
     {
         if (_count >= _max)
         {
@@ -23,10 +25,14 @@ public class Barrier : Task
 
         if (_count >= _max)
         {
-            ReleaseAll();
+            _task.ReleaseAll();
             return;
         }        
 
-        super.Await();
+        _task.Await();
+    }
+
+    public override void unlock()
+    {
     }
 }

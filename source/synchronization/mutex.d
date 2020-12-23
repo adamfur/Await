@@ -1,7 +1,9 @@
 module synchronization.mutex;
-import synchronization.semaphore;
 import job;
 import std.stdio;
+import synchronization.lock;
+import synchronization.semaphore;
+import task;
 
 public class Mutex : Semaphore
 {
@@ -13,9 +15,9 @@ public class Mutex : Semaphore
         super(1);
     }
 
-    public override void Await()
+    public override void lock()
     {
-        if (_owner == Executing)
+        if (_owner == TaskContext.Executing)
         {
             _count += 1;
             return;
@@ -25,23 +27,23 @@ public class Mutex : Semaphore
         {
             if (_owner is null)
             {
-                _owner = Executing;
+                _owner = TaskContext.Executing;
                 _count = 1;
                 return;
             }
 
-            super.Await();
+            _task.Await();
         }
     }
 
-    public override void Release()
+    public override void unlock()
     {
         _count -= 1;
 
         if (_count == 0)
         {
             _owner = null;
-            ReleaseNo(1);
+            _task.ReleaseNo(1);
         }
     }
 }

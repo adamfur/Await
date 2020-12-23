@@ -16,8 +16,8 @@ public enum TaskStatus
 
 public static class TaskContext
 {
-    protected static IJob Executing;
-    protected static IStateTracker State;
+    public static IJob Executing;
+    public static IStateTracker State;
 }
 
 public interface ITask

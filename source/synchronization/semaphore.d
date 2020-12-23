@@ -1,7 +1,8 @@
 module synchronization.semaphore;
 import task;
+import synchronization.lock;
 
-public class Semaphore : Task
+public class Semaphore : AsyncLock
 {
     private int _max;
     private int _count = 0;
@@ -11,19 +12,19 @@ public class Semaphore : Task
         _max = max;
     }
 
-    public override void Await()
+    public override void lock()
     {
         if (_count >= _max)
         {
-            super.Await();
+            _task.Await();
         }
 
-        _count += 1;
+        ++_count;
     }
 
-    public void Release()
+    public override void unlock()
     {
         _count -= 1;
-        ReleaseNo(1);
+        _task.ReleaseNo(1);
     }
 }

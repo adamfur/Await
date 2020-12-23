@@ -2,12 +2,13 @@ module synchronization.monitor;
 import core.time;
 import std.datetime.systime;
 import synchronization.mutex;
+import synchronization.lock;
 
 public class Monitor : Mutex
 {
     public void Wait()
     {
-        super.Await();
+        _task.Await();
     }
 
     // public void Wait(Duration duration)
@@ -18,11 +19,11 @@ public class Monitor : Mutex
 
     public void Broadcast()
     {
-        ReleaseAll();
+        _task.ReleaseAll();
     }
 
     public void Signal()
     {
-        ReleaseNo(1);
+        _task.ReleaseNo(1);
     }
 }

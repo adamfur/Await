@@ -26,7 +26,7 @@ void main()
 
 	// stateTracker.Execute(() {
 	stateTracker.Forever(() {
-		auto lock = new NewSempahore(3);
+		auto lock = new Semaphore(3);
 		auto barrier = new Barrier(4);
 		void delegate() func = () {
 			auto copy = thread++;
@@ -37,7 +37,11 @@ void main()
 				Task.Yield();
 				--count;
 			}
-			barrier.Await();
+
+			synchronized (barrier)
+			{
+			}
+			
 			writeln("%d: hello (2)".format(copy));
 		};
 
@@ -57,51 +61,51 @@ void main()
 	});
 }
 
-void main3()
-{
-	scope stateTracker = new StateTracker(new TimerQueue());
+// void main3()
+// {
+// 	scope stateTracker = new StateTracker(new TimerQueue());
 
-	stateTracker.Forever(() {
-		writeln("...");
-		// scope lock = new Semaphore(2);
-		// scope lock = new Mutex();
-		scope lock = new FastMutex();
-		// scope lock = new Barrier(2);
+// 	stateTracker.Forever(() {
+// 		writeln("...");
+// 		// scope lock = new Semaphore(2);
+// 		// scope lock = new Mutex();
+// 		scope lock = new FastMutex();
+// 		// scope lock = new Barrier(2);
 
-		auto tx1 = Task.Run(() {
-			lock.Await();
-			Task.Delay(1.seconds).Await(); //
-			writeln("1");
-			lock.Release();
-		});
+// 		auto tx1 = Task.Run(() {
+// 			lock.Await();
+// 			Task.Delay(1.seconds).Await(); //
+// 			writeln("1");
+// 			lock.Release();
+// 		});
 
-		auto tx2 = Task.Run(() {
-			lock.Await();
-			Task.Delay(1.seconds).Await(); //
-			writeln("2");
-			lock.Release();
-		});
+// 		auto tx2 = Task.Run(() {
+// 			lock.Await();
+// 			Task.Delay(1.seconds).Await(); //
+// 			writeln("2");
+// 			lock.Release();
+// 		});
 
-		auto tx3 = Task.Run(() {
-			Task.Delay(1.seconds).Await(); //
-			lock.Await();
-			writeln("3");
-			lock.Release();
-		});
+// 		auto tx3 = Task.Run(() {
+// 			Task.Delay(1.seconds).Await(); //
+// 			lock.Await();
+// 			writeln("3");
+// 			lock.Release();
+// 		});
 
-		auto tx4 = Task.Run(() {
-			Task.Delay(1.seconds).Await(); //
-			lock.Await();
-			writeln("4");
-			lock.Release();
-		});
+// 		auto tx4 = Task.Run(() {
+// 			Task.Delay(1.seconds).Await(); //
+// 			lock.Await();
+// 			writeln("4");
+// 			lock.Release();
+// 		});
 
-		tx1.Await();
-		tx2.Await();
-		tx3.Await();
-		tx4.Await();
-	});
-}
+// 		tx1.Await();
+// 		tx2.Await();
+// 		tx3.Await();
+// 		tx4.Await();
+// 	});
+// }
 
 void main2()
 {
