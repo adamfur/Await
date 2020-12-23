@@ -9,12 +9,12 @@ struct MonitorProxy
 
 public class Lock : Object.Monitor
 {
+    private MonitorProxy _proxy;
+
     public this()
     {
-        auto proxy = new MonitorProxy();
-
-        proxy.link = this;
-        this.__monitor = cast(void*) proxy;
+        _proxy.link = this;
+        this.__monitor = cast(void*) &_proxy;
     }
 
     public void lock()
