@@ -8,6 +8,7 @@ import timer.timerqueue;
 import core.sync.mutex;
 import core.sync.condition;
 import std.stdio;
+import std.format; 
 
 public interface IStateTracker
 {
@@ -26,6 +27,7 @@ public class StateTracker : IStateTracker
     private ITimerQueue _timerQueue;
     private Mutex _mutex;
     private Condition _condition;
+    private long _ticks = 0;
 
     public this(ITimerQueue timerQueue)
     {
@@ -80,7 +82,7 @@ public class StateTracker : IStateTracker
 
         Run(() => !_work.empty());
         _timerQueue.Shutdown();
-        writeln("[DONE]");
+        writeln("[DONE]: %d fiber switches".format(_ticks));
     }
 
     public void Forever(void delegate() func)
@@ -109,6 +111,7 @@ public class StateTracker : IStateTracker
             }
 
             job.Execute();
+            _ticks += 1;
         }
     }
 }

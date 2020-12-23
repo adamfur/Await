@@ -15,19 +15,30 @@ import synchronization.semaphore;
 import synchronization.mutex;
 import synchronization.fastmutex;
 import synchronization.barrier;
+import synchronization.lock;
 
 void main()
 {
-	scope stateTracker = new StateTracker(new TimerQueue());
+	scope foo = new Lock();
 
-	stateTracker.Execute(() {
-		foreach (i; 0 .. 150_000)
-		{
-			Task.Run(() {}).Await();
-		}
+	synchronized (foo)
+	{
+		int x = 13;
+	}
 
-		writeln("...");
-	});
+	// writeln(bar.__monitor);
+
+	// scope stateTracker = new StateTracker(new TimerQueue());
+
+	// stateTracker.Execute(() {
+	// 	foreach (i; 0 .. 1_000_000)
+	// 	{
+	// 		// Task.Run(() {}).Await();
+	// 		Task.Yield();
+	// 	}
+
+	// 	writeln("...");
+	// });
 }
 
 void main4()
