@@ -57,7 +57,16 @@ public class Task : TaskContext, ITask
         Throw();
         _queue.Enqueue(Executing);
         Fiber.yield();
+        Cancelled();
         Throw();
+    }
+
+    private void Cancelled()
+    {
+        // if (_cancelled)
+        // {
+        //     throw new TaskCancelledException();
+        // }
     }
 
     private void Throw()

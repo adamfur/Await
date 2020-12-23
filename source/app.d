@@ -19,7 +19,35 @@ import synchronization.lock;
 import std.format;
 import log;
 
+public class Car
+{
+	public this()
+	{
+		writeln("car");
+	}
+
+	public ~this()
+	{
+		writeln("~car");
+	}
+}
+
 void main()
+{
+	void delegate() throws = () {
+		throw new Exception(""); //
+	};
+	auto fiber = new Fiber(() {
+		scope car = new Car();
+		Fiber.yield();
+	});
+
+	fiber.call();
+	fiber.reset(throws);
+	fiber.call();
+}
+
+void main55()
 {
 	scope stateTracker = new StateTracker(new TimerQueue());
 	auto count = 0;
@@ -43,7 +71,7 @@ void main()
 			synchronized (barrier)
 			{
 			}
-			
+
 			Log.Information(() => "%d: hello (2)".format(copy));
 		};
 
