@@ -41,13 +41,18 @@ void main()
 			writeln("%d: hello (2)".format(copy));
 		};
 
-		Task.Run(func);
-		Task.Run(func);
-		Task.Run(func);
-		Task.Run(func);
+		auto t1 = Task.Run(func);
+		auto t2 = Task.Run(func);
+		auto t3 = Task.Run(func);
+		auto t4 = Task.Run(func);
 
-		Task.Delay(250.msecs).Await();
-		writeln("3");
+		t1.Await();
+		t2.Await();
+		t3.Await();
+		t4.Await();
+
+		// Task.Delay(250.msecs).Await();
+		writeln("... done");
 		stateTracker.Shutdown();
 	});
 }
