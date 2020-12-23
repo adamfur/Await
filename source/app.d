@@ -16,40 +16,25 @@ import synchronization.mutex;
 import synchronization.fastmutex;
 import synchronization.barrier;
 import synchronization.lock;
+import std.format;
 
 void main()
 {
-	scope foo = new Lock();
-
-	synchronized (foo)
-	{
-		int x = 13;
-	}
-
-	// writeln(bar.__monitor);
-
-	// scope stateTracker = new StateTracker(new TimerQueue());
-
-	// stateTracker.Execute(() {
-	// 	foreach (i; 0 .. 1_000_000)
-	// 	{
-	// 		// Task.Run(() {}).Await();
-	// 		Task.Yield();
-	// 	}
-
-	// 	writeln("...");
-	// });
-}
-
-void main4()
-{
 	scope stateTracker = new StateTracker(new TimerQueue());
+	auto count = 0;
 
-	stateTracker.Forever(() {
-		auto lock = new Barrier(4);
+	stateTracker.Execute(() {
+		auto lock = new NewSempahore(2);
+		auto barrier = new Barrier(4);
 		void delegate() func = () {
-			writeln("hello (1)");
-			lock.Await();
+			synchronized (lock)
+			{
+				++count;
+				writeln("hello (1): %d".format(count));
+				Task.Yield();
+				--count;
+			}
+			barrier.Await();
 			writeln("hello (2)");
 		};
 

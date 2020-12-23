@@ -104,14 +104,14 @@ public class Task : TaskContext, ITask
 
     import std.stdio;
 
-    protected void ReleaseAll()
+    public void ReleaseAll()
     {
         const intMax = 2_147_483_647;
 
         ReleaseNo(intMax);
     }
 
-    protected void ReleaseNo(int count)
+    public void ReleaseNo(int count)
     {
         _queue.Dequeue(count);
     }

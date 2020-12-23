@@ -1,15 +1,17 @@
 module synchronization.lock;
 import object;
 import std.stdio;
+import task;
 
 struct MonitorProxy
 {
     Object.Monitor link;
 }
 
-public class Lock : Object.Monitor
+public abstract class AsyncLock : Object.Monitor
 {
     private MonitorProxy _proxy;
+    private Task _task = new Task();
 
     public this()
     {
@@ -17,13 +19,33 @@ public class Lock : Object.Monitor
         this.__monitor = cast(void*) &_proxy;
     }
 
-    public void lock()
+    public abstract void lock();
+    public abstract void unlock();
+}
+
+public class NewSempahore : AsyncLock
+{
+    private int _max;
+    private int _count = 0;
+
+    public this(int max)
     {
-        writeln("lock");
+        _max = max;
     }
 
-    public void unlock()
+    public override void lock()
     {
-        writeln("unlock");
+        if (_count >= _max)
+        {
+            _task.Await();
+        }
+
+        ++_count;
+    }
+
+    public override void unlock()
+    {
+        _count -= 1;
+        _task.ReleaseNo(1);
     }
 }

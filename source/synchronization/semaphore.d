@@ -18,11 +18,12 @@ public class Semaphore : Task
             super.Await();
         }
 
-        ++_count;
+        _count += 1;
     }
 
     public void Release()
     {
+        _count -= 1;
         ReleaseNo(1);
     }
 }
