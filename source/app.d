@@ -46,12 +46,12 @@ void main()
 		auto t3 = Task.Run(func);
 		auto t4 = Task.Run(func);
 
-		t1.Await();
-		t2.Await();
-		t3.Await();
-		t4.Await();
+		Task.Delay(250.msecs).Await();
+		// t1.Await();
+		// t2.Await();
+		// t3.Await();
+		// t4.Await();
 
-		// Task.Delay(250.msecs).Await();
 		writeln("... done");
 		stateTracker.Shutdown();
 	});
