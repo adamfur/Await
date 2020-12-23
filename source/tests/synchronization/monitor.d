@@ -1,0 +1,2 @@
+module tests.synchronization.monitor;
+

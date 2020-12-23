@@ -18,4 +18,5 @@ wyrm-test-*
 wyrm2
 *.def
 *.log
-**/.wyrm2
+**/.wyrm2await
+await-test-library
