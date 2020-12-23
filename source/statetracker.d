@@ -84,7 +84,7 @@ public class StateTracker : IStateTracker
 
         Run(() => !_work.empty());
         _timerQueue.Shutdown();
-        writeln("StateTracker: %d fiber switches".format(_ticks));
+        // writeln("StateTracker: %d fiber switches".format(_ticks));
     }
 
     public void Forever(void delegate() func)
@@ -92,7 +92,7 @@ public class StateTracker : IStateTracker
         Schedule(new Job(new TaskQueue(), func, this));
 
         Run(() => _running);
-        writeln("StateTracker: %d fiber switches".format(_ticks));
+        // writeln("StateTracker: %d fiber switches".format(_ticks));
     }
 
     public void Shutdown()

@@ -17,6 +17,7 @@ import synchronization.fastmutex;
 import synchronization.barrier;
 import synchronization.lock;
 import std.format;
+import log;
 
 void main()
 {
@@ -27,13 +28,14 @@ void main()
 	// stateTracker.Execute(() {
 	stateTracker.Forever(() {
 		auto lock = new Semaphore(3);
+		// auto lock = new FastMutex();
 		auto barrier = new Barrier(4);
 		void delegate() func = () {
 			auto copy = thread++;
 			synchronized (lock)
 			{
 				++count;
-				writeln("%d: hello (1): %d".format(copy, count));
+				Log.Information(() => "%d: hello (1): %d".format(copy, count));
 				Task.Yield();
 				--count;
 			}
@@ -42,7 +44,7 @@ void main()
 			{
 			}
 			
-			writeln("%d: hello (2)".format(copy));
+			Log.Information(() => "%d: hello (2)".format(copy));
 		};
 
 		auto t1 = Task.Run(func);
@@ -50,13 +52,13 @@ void main()
 		auto t3 = Task.Run(func);
 		auto t4 = Task.Run(func);
 
-		Task.Delay(250.msecs).Await();
+		Task.Delay(1.seconds).Await();
 		// t1.Await();
 		// t2.Await();
 		// t3.Await();
 		// t4.Await();
 
-		writeln("... done");
+		Log.Information(() => "... done");
 		stateTracker.Shutdown();
 	});
 }
