@@ -22,26 +22,33 @@ void main()
 {
 	scope stateTracker = new StateTracker(new TimerQueue());
 	auto count = 0;
+	auto thread = 0;
 
-	stateTracker.Execute(() {
-		auto lock = new NewSempahore(2);
+	// stateTracker.Execute(() {
+	stateTracker.Forever(() {
+		auto lock = new NewSempahore(3);
 		auto barrier = new Barrier(4);
 		void delegate() func = () {
+			auto copy = thread++;
 			synchronized (lock)
 			{
 				++count;
-				writeln("hello (1): %d".format(count));
+				writeln("%d: hello (1): %d".format(copy, count));
 				Task.Yield();
 				--count;
 			}
 			barrier.Await();
-			writeln("hello (2)");
+			writeln("%d: hello (2)".format(copy));
 		};
 
 		Task.Run(func);
 		Task.Run(func);
 		Task.Run(func);
 		Task.Run(func);
+
+		Task.Delay(250.msecs).Await();
+		writeln("3");
+		stateTracker.Shutdown();
 	});
 }
 

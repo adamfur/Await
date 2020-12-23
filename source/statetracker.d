@@ -8,7 +8,7 @@ import timer.timerqueue;
 import core.sync.mutex;
 import core.sync.condition;
 import std.stdio;
-import std.format; 
+import std.format;
 
 public interface IStateTracker
 {
@@ -18,6 +18,7 @@ public interface IStateTracker
     public void Enqueue(ITimer timer);
     public void Forever(void delegate() func);
     public void Poke();
+    public void Shutdown();
 }
 
 public class StateTracker : IStateTracker
@@ -28,6 +29,7 @@ public class StateTracker : IStateTracker
     private Mutex _mutex;
     private Condition _condition;
     private long _ticks = 0;
+    private bool _running = true;
 
     public this(ITimerQueue timerQueue)
     {
@@ -82,14 +84,25 @@ public class StateTracker : IStateTracker
 
         Run(() => !_work.empty());
         _timerQueue.Shutdown();
-        writeln("[DONE]: %d fiber switches".format(_ticks));
+        writeln("StateTracker: %d fiber switches".format(_ticks));
     }
 
     public void Forever(void delegate() func)
     {
         Schedule(new Job(new TaskQueue(), func, this));
 
-        Run(() => true);
+        Run(() => _running);
+        writeln("StateTracker: %d fiber switches".format(_ticks));
+    }
+
+    public void Shutdown()
+    {
+        _timerQueue.Shutdown();
+        synchronized (_mutex)
+        {
+            _running = false;
+            _condition.notify();
+        }
     }
 
     private void Run(bool delegate() predicate)
