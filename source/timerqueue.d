@@ -1,4 +1,4 @@
-module timer.timerqueue;
+module timerqueue;
 import core.time;
 import job;
 import std.datetime.systime;

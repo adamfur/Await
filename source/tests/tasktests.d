@@ -8,7 +8,7 @@ import taskqueue;
 import statetracker;
 import job;
 import std.stdio;
-import timer.timerqueue;
+import timerqueue;
 
 protected class TaskTests : TaskContext
 {

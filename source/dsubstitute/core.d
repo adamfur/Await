@@ -6,7 +6,7 @@ import dsubstitute.dynamic;
 
 import task;
 import job;
-import timer.timerqueue;
+import timerqueue;
 
 public class DSubstituteException : Exception
 {

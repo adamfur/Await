@@ -8,7 +8,7 @@ import std.datetime.systime;
 import task;
 import taskqueue;
 import taskvalue;
-import timer.timerqueue;
+import timerqueue;
 import xunit.core;
 
 protected class TimerTests

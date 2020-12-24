@@ -9,7 +9,7 @@ import std.stdio;
 import task;
 import taskqueue;
 import taskvalue;
-import timer.timerqueue;
+import timerqueue;
 import xunit.core;
 import synchronization.semaphore;
 import synchronization.mutex;
@@ -34,30 +34,30 @@ public class Car
 
 void main()
 {
-	void delegate() throws = () {
-		throw new Exception(""); //
-	};
-	auto fiber = new Fiber(() {
-		scope car = new Car();
-		Fiber.yield();
-	});
+// 	void delegate() throws = () {
+// 		throw new Exception(""); //
+// 	};
+// 	auto fiber = new Fiber(() {
+// 		scope car = new Car();
+// 		Fiber.yield();
+// 	});
 
-	fiber.call();
-	fiber.reset(throws);
-	fiber.call();
-}
+// 	fiber.call();
+// 	fiber.reset(throws);
+// 	fiber.call();
+// }
 
-void main55()
-{
+// void main55()
+// {
 	scope stateTracker = new StateTracker(new TimerQueue());
 	auto count = 0;
 	auto thread = 0;
 
 	// stateTracker.Execute(() {
 	stateTracker.Forever(() {
-		auto lock = new Semaphore(3);
+		scope lock = new Semaphore(3);
 		// auto lock = new FastMutex();
-		auto barrier = new Barrier(4);
+		scope barrier = new Barrier(4);
 		void delegate() func = () {
 			auto copy = thread++;
 			synchronized (lock)

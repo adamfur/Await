@@ -3,7 +3,7 @@ import synchronization.fastmutex;
 import synchronization.barrier;
 import statetracker;
 import task;
-import timer.timerqueue;
+import timerqueue;
 import xunit.core;
 
 protected class FastMutexTests
