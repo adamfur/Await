@@ -5,15 +5,10 @@ import synchronization.lock;
 import synchronization.semaphore;
 import task;
 
-public class Mutex : Semaphore
+public class Mutex : AsyncLock
 {
     private IJob _owner;
     private int _count = 0;
-
-    public this()
-    {
-        super(1);
-    }
 
     public override void lock()
     {

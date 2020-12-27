@@ -3,21 +3,29 @@ import core.time;
 import std.datetime.systime;
 import synchronization.mutex;
 import synchronization.lock;
+import task;
 
 public class Monitor : Mutex
 {
+    private Task _inner;
+
+    public this()
+    {
+        _inner = new Task();
+    }
+
     public void Wait()
     {
-        _task.Await();
+        _inner.Await();
     }
 
     public void Broadcast()
     {
-        _task.ReleaseAll();
+        _inner.ReleaseAll();
     }
 
     public void Signal()
     {
-        _task.ReleaseNo(1);
+        _inner.ReleaseNo(1);
     }
 }
