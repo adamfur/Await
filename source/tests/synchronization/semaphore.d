@@ -18,11 +18,11 @@ protected class SemaphoreTests
     public void Lock_AlreadyLocked_Stuck()
     {
         auto finnished = 0;
-        auto mutex = new Semaphore(1);
+        auto semaphore = new Semaphore(1);
         void delegate() func = () {
 
-            mutex.lock();
-            synchronized (mutex)
+            semaphore.lock();
+            synchronized (semaphore)
             {
                 finnished += 1;
             }
@@ -38,10 +38,10 @@ protected class SemaphoreTests
     public void Lock_Unlocked_Success()
     {
         auto finnished = 0;
-        auto mutex = new Semaphore(1);
+        auto semaphore = new Semaphore(1);
         void delegate() func = () {
 
-            synchronized (mutex)
+            synchronized (semaphore)
             {
                 finnished += 1;
             }
@@ -59,10 +59,10 @@ protected class SemaphoreTests
     {
         auto inside = 0;
         auto peak = 0;
-        auto mutex = new Semaphore(2);
+        auto semaphore = new Semaphore(2);
         void delegate() func = () {
 
-            synchronized (mutex)
+            synchronized (semaphore)
             {
                 inside += 1;
 

@@ -1,11 +1,12 @@
 module synchronization.monitor;
 import core.time;
 import std.datetime.systime;
-import synchronization.mutex;
+import synchronization.fastmutex;
 import synchronization.lock;
+import synchronization.mutex;
 import task;
 
-public class Monitor : Mutex
+public class Monitor : FastMutex
 {
     private Task _inner;
 
@@ -16,7 +17,9 @@ public class Monitor : Mutex
 
     public void Wait()
     {
+        unlock();
         _inner.Await();
+        lock();
     }
 
     public void Broadcast()
