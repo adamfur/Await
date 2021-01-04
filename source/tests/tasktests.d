@@ -100,7 +100,7 @@ protected class TaskTests : TaskContext
 
     public void CompletedTask_Complete_AwakenAll()
     {
-        auto task = new Task(new TaskQueue());
+        auto task = new Task();
 
         Execute(() {
             Executing = _subTask1; //
@@ -120,7 +120,7 @@ protected class TaskTests : TaskContext
 
     public void CompletedTask_SetException_AwakenAll()
     {
-        auto task = new Task(new TaskQueue());
+        auto task = new Task();
 
         Execute(() {
             Executing = _subTask1; //

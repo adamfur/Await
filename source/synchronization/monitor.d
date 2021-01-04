@@ -8,27 +8,27 @@ import task;
 
 public class Monitor : FastMutex
 {
-    private Task _inner;
+    private Task _condition;
 
     public this()
     {
-        _inner = new Task();
+        _condition = new Task();
     }
 
     public void Wait()
     {
         unlock();
-        _inner.Await();
+        _condition.Await();
         lock();
     }
 
     public void Broadcast()
     {
-        _inner.ReleaseAll();
+        _condition.ReleaseAll();
     }
 
     public void Signal()
     {
-        _inner.ReleaseNo(1);
+        _condition.ReleaseNo(1);
     }
 }

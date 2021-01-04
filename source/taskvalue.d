@@ -25,6 +25,11 @@ public class TaskValueSet(S) : TaskValue!S
         super(queue);
     }
 
+    public this()
+    {
+        this(new TaskQueue());
+    }
+
     public void Set(S value)
     {
         _value = value;

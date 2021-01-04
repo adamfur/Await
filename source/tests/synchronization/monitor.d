@@ -51,7 +51,7 @@ protected class MonitorTests
         Assert.Equal(1, awaken);
     }
 
-    public void Monitor_Signal_WakeAll()
+    public void Monitor_Broadcast_WakeAll()
     {
         int awaken = 0;
         int[] queue;

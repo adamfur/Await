@@ -97,7 +97,7 @@ public class Task : TaskContext, ITask
 
     public static TaskValue!S FromResult(S)(S value)
     {
-        auto task = new TaskValueSet!S(new TaskQueue());
+        auto task = new TaskValueSet!S();
 
         task.Set(value);
         return task;
@@ -105,13 +105,11 @@ public class Task : TaskContext, ITask
 
     public static Task CompletedTask()
     {
-        auto task = new Task(new TaskQueue());
+        auto task = new Task();
 
         task.Complete();
         return task;
     }
-
-    import std.stdio;
 
     public void ReleaseAll()
     {
@@ -147,7 +145,7 @@ public class Task : TaskContext, ITask
             throw new Exception("Not in async context");
         }
 
-        auto task = new TaskValueSet!S(new TaskQueue());
+        auto task = new TaskValueSet!S();
         auto job = new Job(new TaskQueue(), () {
             try
             {
@@ -168,7 +166,7 @@ public class Task : TaskContext, ITask
 
     public static Task Delay(Duration duration)
     {
-        auto task = new Task(new TaskQueue());
+        auto task = new Task();
         auto timer = new TaskTimer(task, duration);
 
         State.Enqueue(timer);
